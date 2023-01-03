@@ -31,8 +31,8 @@ const DataStore = {
     ),
   },
   counters: {
-    user: 3,
-    car: 3,
+    user: 1,
+    car: 1,
   }
 };
 
@@ -72,15 +72,17 @@ export class MockDB {
     R extends typeof DataStore.tables[T] extends Map<any, infer I> ? I : never,
   >(table: T, id: number, data: U): R {
     const record = DataStore.tables[table].get(id);
-    console.log(data, record);
+    
+    if (record) {
+      for (let k of Object.keys(data)) {
+        record[k] = data[k] ?? record[k];
+      }
+      record.id = id;
 
-    for (let k of Object.keys(data)) {
-      record[k] = data[k] ?? record[k];
+      //@ts-ignore
+      DataStore.tables[table].set(id, record);
     }
-    record.id = id;
-
-    //@ts-ignore
-    DataStore.tables[table].set(id, record);
+    
     //@ts-ignore
     return record;
   }
